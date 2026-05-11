@@ -211,48 +211,105 @@ function EditorClient() {
     setZoom(Math.max(0.25, Math.min(3, target)));
   };
 
+  const { theme, toggle } = useTheme();
+
   if (!pdf) {
+    const features = [
+      { icon: Type, label: "Text & fonts" },
+      { icon: Square, label: "Shapes & lines" },
+      { icon: Highlighter, label: "Highlights" },
+      { icon: PenLine, label: "Signature" },
+    ];
     return (
-      <div className="flex min-h-screen flex-col bg-gradient-to-b from-background to-muted/30">
-        <header className="flex h-14 items-center justify-between border-b border-border bg-card/60 px-6 backdrop-blur">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground font-bold">
-              P
+      <div className="relative flex min-h-screen flex-col overflow-hidden bg-background">
+        {/* ambient backdrop */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10"
+          style={{
+            background:
+              "radial-gradient(900px 540px at 15% 0%, color-mix(in oklab, var(--color-primary) 16%, transparent), transparent 60%), radial-gradient(800px 500px at 90% 20%, color-mix(in oklab, var(--color-accent) 14%, transparent), transparent 60%)",
+          }}
+        />
+        <header className="relative z-10 flex h-14 items-center justify-between border-b border-border bg-[color:var(--color-toolbar)]/60 px-6 backdrop-blur-xl">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary text-primary-foreground shadow-glow">
+              <Type className="h-4 w-4" />
             </div>
-            <span className="text-base font-semibold text-foreground">PDF Studio</span>
+            <span className="text-base font-semibold tracking-tight text-foreground">
+              PDF <span className="text-gradient">Studio</span>
+            </span>
           </div>
-          <span className="text-xs text-muted-foreground">100% client-side · No uploads</span>
+          <div className="flex items-center gap-3">
+            <span className="hidden items-center gap-1.5 text-xs text-muted-foreground sm:inline-flex">
+              <ShieldCheck className="h-3.5 w-3.5 text-[color:var(--color-success)]" />
+              100% client-side · No uploads
+            </span>
+            <button
+              onClick={toggle}
+              className="rounded-md border border-border bg-[color:var(--color-surface)]/60 px-2.5 py-1.5 text-xs text-foreground hover:bg-[color:var(--color-elevated)]"
+            >
+              {theme === "dark" ? "Light" : "Dark"} mode
+            </button>
+          </div>
         </header>
-        <main className="flex flex-1 flex-col items-center justify-center px-6 py-12">
-          <div className="mb-10 max-w-2xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-              The free browser PDF editor
+
+        <main className="relative flex flex-1 flex-col items-center justify-center px-6 py-12">
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-10 max-w-2xl text-center"
+          >
+            <span className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border bg-[color:var(--color-surface)]/70 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
+              <Sparkles className="h-3 w-3 text-accent" />
+              Free · Private · Runs in your browser
+            </span>
+            <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-6xl">
+              The free <span className="text-gradient">browser</span> PDF editor
             </h1>
-            <p className="mt-4 text-base text-muted-foreground">
-              Add text, shapes, highlights, images, and signatures to any PDF. Everything happens
-              in your browser — your files never leave your device.
+            <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground">
+              Add text, shapes, highlights, images, and signatures to any PDF.
+              Everything happens locally — your files never leave your device.
             </p>
-          </div>
+          </motion.div>
+
           <UploadDropzone onFile={load} />
-          {loading && (
-            <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> Loading PDF…
-            </div>
-          )}
-          {error && <p className="mt-6 text-sm text-destructive">{error}</p>}
-          <div className="mt-12 grid max-w-3xl grid-cols-2 gap-4 sm:grid-cols-4">
-            {["Text & fonts", "Shapes & lines", "Highlights", "Image & signature"].map((f) => (
-              <div
-                key={f}
-                className="rounded-lg border border-border bg-card p-3 text-center text-xs text-muted-foreground"
+
+          <AnimatePresence>
+            {loading && (
+              <motion.div
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0 }}
+                className="mt-6 flex items-center gap-2 text-sm text-muted-foreground"
               >
-                {f}
-              </div>
+                <Loader2 className="h-4 w-4 animate-spin" /> Loading PDF…
+              </motion.div>
+            )}
+          </AnimatePresence>
+          {error && <p className="mt-6 text-sm text-destructive">{error}</p>}
+
+          <div className="mt-14 grid w-full max-w-3xl grid-cols-2 gap-3 sm:grid-cols-4">
+            {features.map((f, i) => (
+              <motion.div
+                key={f.label}
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.15 + i * 0.06 }}
+                className="group flex flex-col items-center gap-2 rounded-xl border border-border bg-[color:var(--color-surface)]/60 p-4 text-center backdrop-blur transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-elegant"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[color:var(--color-elevated)] text-primary transition-colors group-hover:bg-primary/10">
+                  <f.icon className="h-4 w-4" />
+                </span>
+                <span className="text-xs font-medium text-foreground">{f.label}</span>
+              </motion.div>
             ))}
           </div>
         </main>
-        <footer className="border-t border-border bg-card/60 px-6 py-4 text-center text-xs text-muted-foreground">
-          Built by <span className="font-medium text-foreground">Vikas Yadav</span> · PDF Studio
+
+        <footer className="relative z-10 border-t border-border bg-[color:var(--color-toolbar)]/60 px-6 py-4 text-center text-xs text-muted-foreground backdrop-blur">
+          Built by <span className="font-semibold text-foreground">Vikas Yadav</span> · PDF Studio · Credits: PDF.js, pdf-lib, Konva, Framer Motion
         </footer>
       </div>
     );
