@@ -1,4 +1,6 @@
 import type { EditorObject, ShapeObject, TextObject } from "@/lib/editor-types";
+import { motion, AnimatePresence } from "framer-motion";
+import { Settings2 } from "lucide-react";
 
 export function PropertiesPanel({
   object,
@@ -8,17 +10,24 @@ export function PropertiesPanel({
   onChange: (patch: Partial<EditorObject>) => void;
 }) {
   return (
-    <aside className="flex h-full w-72 shrink-0 flex-col gap-4 overflow-y-auto border-l border-border bg-card p-4">
-      <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-        Properties
+    <aside className="flex h-full w-72 shrink-0 flex-col gap-4 overflow-y-auto border-l border-border bg-[color:var(--color-panel)]/80 p-4 backdrop-blur-xl">
+      <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <Settings2 className="h-3.5 w-3.5" /> Properties
       </div>
 
-      {!object && (
-        <div className="rounded-md border border-dashed border-border p-4 text-sm text-muted-foreground">
-          Select an element on the page to edit its properties, or pick a tool from the toolbar to
-          add new content.
-        </div>
-      )}
+      <AnimatePresence mode="wait">
+        {!object && (
+          <motion.div
+            key="empty"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="rounded-xl border border-dashed border-border bg-[color:var(--color-elevated)]/40 p-5 text-sm text-muted-foreground"
+          >
+            Select an element on the page to edit its properties, or pick a tool from the toolbar to add new content.
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {object?.type === "text" && <TextProps obj={object as TextObject} onChange={onChange} />}
       {(object?.type === "rect" ||

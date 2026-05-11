@@ -104,6 +104,16 @@ function EditorClient() {
       } else if (e.key === "Escape") {
         setSelectedId(null);
         setTool("select");
+      } else {
+        const map: Record<string, Tool> = {
+          v: "select", t: "text", r: "rect", o: "circle", l: "line", h: "highlight",
+        };
+        const k = e.key.toLowerCase();
+        if (map[k] && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          e.preventDefault();
+          setTool(map[k]);
+          setSelectedId(null);
+        }
       }
     };
     window.addEventListener("keydown", onKey);
