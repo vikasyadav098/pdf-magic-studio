@@ -344,28 +344,56 @@ function EditorClient() {
 
         <div
           ref={viewportRef}
-          className="relative flex flex-1 items-start justify-center overflow-auto bg-muted/40 p-10"
+          className="relative flex flex-1 items-start justify-center overflow-auto bg-[color:var(--color-canvas)] p-10"
+          style={{
+            backgroundImage:
+              "radial-gradient(color-mix(in oklab, var(--color-foreground) 6%, transparent) 1px, transparent 1px)",
+            backgroundSize: "22px 22px",
+          }}
         >
-          {bgUrl ? (
-            <PageCanvas
-              page={activePage}
-              bgUrl={bgUrl}
-              scale={displayScale}
-              tool={tool}
-              objects={objects}
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              onAdd={addObject}
-              onUpdate={updateObject}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" /> Rendering page…
-            </div>
-          )}
-          <div className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-card/90 px-3 py-1 text-xs text-muted-foreground shadow">
-            Page {currentPage} of {pdf.pages.length}
-          </div>
+          <AnimatePresence mode="wait">
+            {bgUrl ? (
+              <motion.div
+                key={currentPage + "-" + bgUrl}
+                initial={{ opacity: 0, y: 16, scale: 0.985, filter: "blur(6px)" }}
+                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, y: -10, scale: 0.99, filter: "blur(4px)" }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <PageCanvas
+                  page={activePage}
+                  bgUrl={bgUrl}
+                  scale={displayScale}
+                  tool={tool}
+                  objects={objects}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  onAdd={addObject}
+                  onUpdate={updateObject}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex h-full w-full items-center justify-center"
+              >
+                <div
+                  className="shimmer rounded-lg shadow-elegant"
+                  style={{ width: 600, height: 800 }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full glass px-3.5 py-1.5 text-xs font-medium text-foreground shadow-elegant"
+          >
+            Page <span className="text-primary">{currentPage}</span> / {pdf.pages.length}
+          </motion.div>
         </div>
 
         <PropertiesPanel
@@ -374,16 +402,23 @@ function EditorClient() {
         />
       </div>
 
-      <footer className="flex h-8 items-center justify-between border-t border-border bg-card px-4 text-[11px] text-muted-foreground">
-        <span>PDF Studio · client-side editor</span>
+      <footer className="flex h-8 items-center justify-between border-t border-border bg-[color:var(--color-toolbar)]/70 px-4 text-[11px] text-muted-foreground backdrop-blur">
+        <span className="inline-flex items-center gap-1.5">
+          <ShieldCheck className="h-3 w-3 text-[color:var(--color-success)]" />
+          PDF Studio · client-side editor
+        </span>
         <span>
-          Built by <span className="font-medium text-foreground">Vikas Yadav</span>
+          Built by <span className="font-semibold text-foreground">Vikas Yadav</span>
         </span>
       </footer>
 
-      {showSignature && (
-        <SignaturePad onSave={handleSignatureSave} onClose={() => setShowSignature(false)} />
-      )}
+      <ExportSuccess show={exportedFlash} />
+
+      <AnimatePresence>
+        {showSignature && (
+          <SignaturePad onSave={handleSignatureSave} onClose={() => setShowSignature(false)} />
+        )}
+      </AnimatePresence>
 
       <input
         ref={fileInputRef}
