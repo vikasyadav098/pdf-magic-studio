@@ -11,7 +11,10 @@ import { PropertiesPanel } from "@/components/editor/PropertiesPanel";
 import { SignaturePad } from "@/components/editor/SignaturePad";
 import type { EditorObject, ImageObject, Tool } from "@/lib/editor-types";
 import { exportEditedPdf } from "@/lib/pdf-export";
-import { Loader2 } from "lucide-react";
+import { Loader2, ShieldCheck, Sparkles, Type, Square, Highlighter, PenLine } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ExportSuccess } from "@/components/editor/ExportSuccess";
+import { useTheme } from "@/hooks/use-theme";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -29,10 +32,12 @@ export const Route = createFileRoute("/")({
 
 function EditorPage() {
   const mounted = useMounted();
+  // initialize theme on mount
+  useTheme();
   if (!mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background text-muted-foreground">
-        Loading editor…
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Loading editor…
       </div>
     );
   }
@@ -49,6 +54,7 @@ function EditorClient() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
+  const [exportedFlash, setExportedFlash] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -186,6 +192,8 @@ function EditorClient() {
       a.download = pdf.fileName.replace(/\.pdf$/i, "") + "-edited.pdf";
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setExportedFlash(true);
+      setTimeout(() => setExportedFlash(false), 1800);
     } catch (e: any) {
       console.error(e);
       alert("Failed to export PDF: " + e?.message);
