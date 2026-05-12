@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="pdf-studio-favicon-gradient" x1="8" x2="56" y1="6" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#54b5ff" />
+      <stop offset="1" stop-color="#1e6cff" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0b1220" />
+  <path fill="url(#pdf-studio-favicon-gradient)" d="M20 12h18l10 10v24c0 3.314-2.686 6-6 6H20c-3.314 0-6-2.686-6-6V18c0-3.314 2.686-6 6-6Z" />
+  <path fill="#dceeff" d="M38 12v10h10z" opacity="0.9" />
+  <path fill="#08111e" d="M24 27h9.4c5.23 0 8.6 2.66 8.6 7.12 0 4.66-3.37 7.36-8.6 7.36H30v6.52h-6Zm6 4.94v4.6h3.06c1.74 0 2.98-.8 2.98-2.3 0-1.52-1.24-2.3-2.98-2.3Z" />
+</svg>
