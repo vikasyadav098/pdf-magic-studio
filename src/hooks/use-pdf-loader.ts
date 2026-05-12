@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { pdfjsLib } from "@/lib/pdfjs-setup";
+import { getPdfjs } from "@/lib/pdfjs-setup";
 
 export type LoadedPage = {
   pageNumber: number;
@@ -25,6 +25,7 @@ export function usePdfLoader() {
     setError(null);
     try {
       const bytes = await file.arrayBuffer();
+      const pdfjsLib = await getPdfjs();
       // pdfjs consumes the buffer; clone for export later
       const docTask = pdfjsLib.getDocument({ data: bytes.slice(0) });
       const doc = await docTask.promise;
